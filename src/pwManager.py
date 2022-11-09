@@ -33,6 +33,19 @@ def showHelp():
             rm <name>   -----> remove name and corresponding password
             """)
 
+def saveUserToDb(name, password):
+    try:
+        con = sqlite3.connect("../data/shadow.db")
+        cur = con.cursor()
+
+        cur.execute("INSERT INTO users VALUES(?, ?)", (name, password,))
+        con.commit()
+
+    except Error as e:
+        print("DB Error: ", e)
+    finally:
+        con.close()
+
 def sign():
     name = input("enter a name: ")
     
@@ -45,37 +58,88 @@ def sign():
         without a password.
     """)
     password = input("enter a password: ")
+    if password == "":
+        password = "none"
 
     try:
         con = sqlite3.connect("../data/shadow.db")
         cur = con.cursor()
 
-        res = cur.execute("SELECT * FROM users WHERE name='?'", (name))
+        res = cur.execute("SELECT * FROM users WHERE name=?", (name,))
+        res = res.fetchone()
+
+        if res != None:
+            print("name: ", name, ", allready in use")
+        else:
+            saveUserToDb(name, password)
+            print("new account added")
+            #if sign success go out of sign-function
+            return "userInput"
+        
+        #if sign fail start sign-function again
+        return "sign"
     
-        print(res.fetchone())
-        return sign
     except Error as e:
-        print("fail: ", e)
+        print("DB Error: ", e)
+    
     finally:
         con.close()
 
+def login(user):
+    print("login to account")
+    name = input("name: ")
+    
+    try:
+        con = sqlite3.connect("../data/shadow.db")
+        cur = con.cursor()
+
+        res = cur.execute("SELECT * FROM users WHERE name=?", (name,))
+        res = res.fetchone()
+        print(res)
+
+    except Error as e:
+        print("DB Error: ", e)
+    finally:
+        con.close()
+    
+    if res == None:
+        print("name: ", name, " does not exist")
+        return "login"
+    if res.password == "none":
+        user.update({'name': name})
+        print("login success")
+        return "userInput"
+    else:
+        password = input("password: ")
+        
+        if res.password != password:
+            print("wrong password")
+            return "userInput"
+        else:
+            print("login success")
+            return "userInput"
+        
 
 def main():
     q = False
     user = {}
-    v = userInput()
-    
+    v = "userInput"
+
     while not q:
-        if v == "h" or v == "--help":
-            showHelp()
+        if v == "userInput":
             v = userInput()
+        elif v == "h" or v == "--help":
+            showHelp()
+            continue
         elif v == "sign":
-            sign()
+            v = sign()
+        elif v == "login":
+            v = login(user)
         elif v == "q":
             q = True
-        else:
+        elif v != "sign" and v != "login":
             print("command: ", v, " not found")
-            v = userInput()
+
 
 if __name__ == "__main__":
     main()
