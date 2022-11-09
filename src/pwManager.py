@@ -22,6 +22,7 @@ def showHelp():
                                 -> syntax: login <name>
             sign        -----> sign up
                                 -> syntax: sign <name>
+            who         -----> show current logged user
             c           -----> create new password
                                 -> syntax: c <name> <password>
             l           -----> password create automatically (only small letters)
@@ -105,24 +106,36 @@ def login(user):
     if res == None:
         print("name: ", name, " does not exist")
         return "login"
-    if res.password == "none":
+    if res[1] == "none":
         user.update({'name': name})
         print("login success")
         return "userInput"
     else:
         password = input("password: ")
         
-        if res.password != password:
+        if res[1] != password:
             print("wrong password")
             return "userInput"
         else:
+            user['name'] = name
+            user['password'] = password
             print("login success")
             return "userInput"
-        
+
+def showCurrUser(user):
+    print(user['name'])
+
+def createPassword(userInput, user):
+    pw = ""
+
+    if user['name'] == "":
+        print("please login first")
+        return "userInput"
+    
 
 def main():
     q = False
-    user = {}
+    user = {'name': "", 'password': ""}
     v = "userInput"
 
     while not q:
@@ -130,16 +143,22 @@ def main():
             v = userInput()
         elif v == "h" or v == "--help":
             showHelp()
+            v = "userInput"
             continue
         elif v == "sign":
             v = sign()
         elif v == "login":
             v = login(user)
+            print(user)
+        elif v == "who":
+            showCurrUser(user)
+            v = "userInput"
+            continue
         elif v == "q":
             q = True
         elif v != "sign" and v != "login":
             print("command: ", v, " not found")
-
+            v = "userInput"
 
 if __name__ == "__main__":
     main()
