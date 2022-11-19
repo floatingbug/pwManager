@@ -47,6 +47,18 @@ def saveUserToDb(name, password):
     finally:
         con.close()
 
+def save_account_to_db(username, accountname, password):
+    try:
+        con = sqlite3.connect("../data/account.db")
+        cur = con.cursor()
+
+        cur.execute("INSERT INTO account VALUES(?, ?, ?)", (username, accountname, password,))
+        con.commit()
+    except Error as e:
+        print("DB Error: ", e)
+    finally:
+        con.close()
+
 def sign():
     name = input("enter a name: ")
     
@@ -125,14 +137,110 @@ def login(user):
 def showCurrUser(user):
     print(user['name'])
 
-def createPassword(userInput, user):
-    pw = ""
-
+def check_if_login(user):
     if user['name'] == "":
+        return False
+    else:
+        return True
+
+def random_pw(l, n, r):
+
+
+def create_pw(v, user):
+    pw = ""
+    account = ""
+    user_defined = False
+    r = False
+    n = ""
+    l = ""
+    args = v.split()
+    
+    #check for correct syntax
+    if not check_if_login(user):
         print("please login first")
         return "userInput"
     
+    if not "l=" in args[2]:
+        user_defined = True
+    if user_defined and args[1] == "" or args[2] == "":
+        print("account and password is needed")
+        return "userInput"
+    if not user_defined:
+        for arg in args:
+            if 'l=' in arg:
+                l = arg.strip("l=")
+                if not l.isdigit():
+                    print("argument: l, need to be a number")
+                    return "userInput"
+            if 'n=' in args:
+                n = arg.strip("n=")
+                if not n.isdigit():
+                    print("argument: n, need to be a number")
+                    return "userInput"
+            if arg = "r":
+                r = True
+    for
 
+
+    #crate userdefined pw (not automatic)
+    if user_defined:
+        account = args[1]
+        pw = args[2]
+        
+        save_account_to_db(user['name'], account, pw)
+        print("account added to db")
+        return "userInput"
+    
+    #create automatically a pw
+    random_pw(l, n, r)
+
+def show_pw(v, user):
+    args = v.split()
+    res = []
+    account = ""
+
+    #check for correct syntax
+    if not check_if_login(user):
+        print("please login first")
+        return "userInput"
+    if args[1] != "name" and args[1] != "names":
+        print("secont argument must be name or names")
+        return "userInput"
+    if args[1] == "name" and args[2] == "":
+        print("third argument is needed")
+        return "userInput"
+
+    else:
+        try:
+            con = sqlite3.connect("../data/account.db")
+            cur = con.cursor()
+
+            res = cur.execute("SELECT account, password FROM account")
+            res = res.fetchall()
+        except Error as e:
+            print("DB Error: ", e)
+        finally:
+            con.close()
+
+    if args[1] == "names":
+        for t in res:
+            print("account: ", t[0], "----> password: ", t[1])
+
+        return "userInput"
+    else:
+        account = args[2]
+
+        for t in res:
+            if t[0] == account:
+                print("account: ", t[0], "----> password: ", t[1])
+                break
+        
+        return "userInput"
+
+    print("no account: ", account, ", found")
+    return "userInput"
+
+# Main-Function
 def main():
     q = False
     user = {'name': "", 'password': ""}
@@ -145,6 +253,11 @@ def main():
             showHelp()
             v = "userInput"
             continue
+        elif v[0] == "c":
+            v = create_pw(v, user)
+            continue
+        elif "show" in v:
+            v = show_pw(v, user)
         elif v == "sign":
             v = sign()
         elif v == "login":
