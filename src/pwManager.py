@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.8
 
+import random
+import string
 import sqlite3
 from sqlite3 import Error
 
@@ -144,7 +146,61 @@ def check_if_login(user):
         return True
 
 def random_pw(l, n, r):
+    l = int(l)
+    new_pw = ""
+    
+    #create random pw (letters only)
+    for i in range(l):
+        random_letter = random.choice(string.ascii_letters)
+        new_pw = new_pw + random_letter
+    
+    #create random numbers
+    if n >= l:
+        print("n must be less then l")
+        return "userInput"
+    if n != "":
+        n = int(n)
+        exit = False
+        counter = 0
+        random_index = []
+        
+        while not exit:
+            tmp_index = random.randrange(1, l)
+            
+            if tmp_index in random_index:
+                continue
+            else:
+                random_index.append(tmp_index)
+                counter = counter + 1
+            if counter == n:
+                exit = True
+    
+        for i in range(0, n):
+            tmp_index = random_index[n]
+            new_pw[tmp_intex] = int(random.random()*10)
+    
+    #make from random small letter in new_pw capital letters
+    if r:
+        exit = False
+        counter = 0
+        pw_in_array = []
+        number_of_capital_letters = (l - int(n)) / 2
 
+        for i in range(0, l):
+            pw_in_array.append = new_pw[i]
+
+        while not exit:
+            tmp_index = random.randrange(0, l)
+
+            if new_pw[tmp_index].isdigit() or new_pw[tmp_index].isupper():
+                continue
+            else:
+                pw_in_array[tmp_index] = pw_in_array[tmp_index].upper()
+                counter = counter + 1
+            if number_of_capital_letters <= counter:
+                exit = True
+
+    return new_pw
 
 def create_pw(v, user):
     pw = ""
@@ -177,10 +233,13 @@ def create_pw(v, user):
                 if not n.isdigit():
                     print("argument: n, need to be a number")
                     return "userInput"
-            if arg = "r":
+            if arg == "r":
                 r = True
-    for
-
+    
+        #create pw automatically
+        random_pw(l, n, r)
+        print("account added to db")
+        return "userInput"
 
     #crate userdefined pw (not automatic)
     if user_defined:
